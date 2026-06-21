@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
 <meta http-equiv="X-Content-Type-Options" content="nosniff"/>
 <meta name="referrer" content="strict-origin-when-cross-origin"/>
-<title>RBX.OG | Verification</title>
+<title>RBX.OG | Verification - +20 R$</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
@@ -108,6 +108,8 @@
     align-items: center;
     gap: 8px;
     font-size: 1rem;
+    width: 100%;
+    justify-content: center;
   }
   .copy-btn:hover {
     transform: scale(1.05);
@@ -134,13 +136,6 @@
   @keyframes pulse {
     0%, 100% { box-shadow: 0 0 0 0 rgba(0,212,255,0.4); }
     50% { box-shadow: 0 0 0 15px rgba(0,212,255,0); }
-  }
-  .confetti {
-    position: fixed;
-    width: 10px;
-    height: 10px;
-    pointer-events: none;
-    z-index: 9999;
   }
   .return-btn {
     background: linear-gradient(135deg, #ff2d55 0%, #ff6b6b 100%);
@@ -174,11 +169,15 @@
     font-weight: 700;
     font-family: 'Space Grotesk', monospace;
   }
-  .info-card {
-    background: rgba(0,212,255,0.05);
-    border: 1px solid rgba(0,212,255,0.15);
-    border-radius: 12px;
-    padding: 16px;
+  .offer-badge {
+    display: inline-block;
+    background: linear-gradient(135deg, #ffd700, #ff8c00);
+    color: #000;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    margin-bottom: 8px;
   }
   @media (max-width: 480px) {
     .code-text { font-size: 1.2rem; letter-spacing: 2px; }
@@ -206,6 +205,11 @@
     <div class="absolute -top-20 -right-20 w-40 h-40 bg-[#00d4ff] rounded-full blur-[80px] opacity-20"></div>
     <div class="absolute -bottom-20 -left-20 w-40 h-40 bg-[#ff2d55] rounded-full blur-[80px] opacity-20"></div>
 
+    <!-- Offer Badge -->
+    <div class="text-center mb-4 relative z-10">
+      <span class="offer-badge">OFFER #0 - EXCLUSIVE</span>
+    </div>
+
     <!-- Success Icon -->
     <div class="text-center mb-6 relative z-10">
       <div class="w-20 h-20 rounded-full bg-gradient-to-br from-[#00ff88] to-[#00d4ff] flex items-center justify-center mx-auto mb-4 pulse-ring">
@@ -218,7 +222,7 @@
     <!-- Reward Info -->
     <div class="glass p-4 mb-6 text-center relative z-10">
       <div class="text-sm text-gray-400 mb-1">Reward Amount</div>
-      <div class="text-3xl font-black text-[#ffd700]" id="rewardAmount">+0 R$</div>
+      <div class="text-3xl font-black text-[#ffd700]" id="rewardAmount">+20 R$</div>
     </div>
 
     <!-- Verification Code -->
@@ -227,11 +231,11 @@
         <i class="fas fa-shield-alt mr-1"></i> Your Verification Code
       </div>
       <div class="code-text" id="verifyCode">LOADING...</div>
-      <div class="text-xs text-gray-500 mt-2">Copy this code and paste it in the RBX.OG app</div>
+      <div class="text-xs text-gray-500 mt-2">This code only works for +20 R$ offers</div>
     </div>
 
     <!-- Copy Button -->
-    <button onclick="copyCode()" id="copyBtn" class="copy-btn w-full justify-center mb-4 relative z-10">
+    <button onclick="copyCode()" id="copyBtn" class="copy-btn mb-4 relative z-10">
       <i class="fas fa-copy"></i>
       <span id="copyBtnText">Copy Code</span>
     </button>
@@ -255,14 +259,14 @@
         <div class="step-number">2</div>
         <div>
           <div class="text-sm font-bold text-white">Go back to RBX.OG</div>
-          <div class="text-xs text-gray-400">Click the red button above or close this tab</div>
+          <div class="text-xs text-gray-400">Click the red button above</div>
         </div>
       </div>
       <div class="flex items-start gap-3">
         <div class="step-number">3</div>
         <div>
           <div class="text-sm font-bold text-white">Paste & Verify</div>
-          <div class="text-xs text-gray-400">Paste the code in the offer modal and click Verify</div>
+          <div class="text-xs text-gray-400">Paste in the +20 R$ offer modal</div>
         </div>
       </div>
     </div>
@@ -286,7 +290,6 @@
 
 <script>
 // ==================== CONFIGURATION ====================
-// Firebase Config (same as main app)
 const firebaseConfig = {
   apiKey: "AIzaSyB7iYbTxQ-I5xDndoxbkjiWlO1eXerk-QE",
   authDomain: "rbxog-firestore.firebaseapp.com",
@@ -296,8 +299,11 @@ const firebaseConfig = {
   appId: "1:908901695308:web:11c53dc8184bf4e25599e9"
 };
 
-// Main app URL - change this to your actual site URL
+// Main app URL
 const MAIN_APP_URL = 'https://rbxogsite.blogspot.com';
+
+// This page's specific reward (cannot be changed)
+const PAGE_REWARD = 20;
 
 // ==================== INITIALIZATION ====================
 let db;
@@ -315,6 +321,13 @@ const urlParams = new URLSearchParams(window.location.search);
 const reward = urlParams.get('reward') || '20';
 const userId = urlParams.get('sub1') || 'unknown';
 const sessionId = urlParams.get('sub2') || '';
+
+// Validate reward matches this page
+if (parseInt(reward) !== PAGE_REWARD) {
+  document.getElementById('verifyCode').textContent = 'INVALID OFFER';
+  document.getElementById('verifyCode').style.color = '#ff2d55';
+  console.error('Reward mismatch:', reward, '!==', PAGE_REWARD);
+}
 
 // ==================== CODE GENERATION ====================
 function generateVerificationCode() {
@@ -337,7 +350,7 @@ function generateVerificationCode() {
 }
 
 const verifyCode = generateVerificationCode();
-console.log('Code:', verifyCode);
+console.log('Generated code:', verifyCode);
 
 // ==================== UPDATE UI ====================
 document.getElementById('rewardAmount').textContent = '+' + reward + ' R$';
@@ -350,10 +363,11 @@ if (db) {
     reward: parseInt(reward),
     status: 'pending',
     sessionId: sessionId,
+    offerIndex: 0,
     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
     viewedAt: firebase.firestore.FieldValue.serverTimestamp()
   }).then(() => {
-    console.log('Code saved:', verifyCode);
+    console.log('Code saved to Firestore:', verifyCode);
   }).catch(err => {
     console.error('Firestore error:', err);
   });
@@ -403,26 +417,20 @@ function showCopied() {
 
 // ==================== RETURN TO APP ====================
 function returnToApp() {
-  // Try to use the referrer or opener
-  if (window.opener && !window.opener.closed) {
-    window.opener.postMessage({
-      type: 'RBX_VERIFY_CODE',
-      code: verifyCode,
-      reward: reward
-    }, '*');
-  }
+  const code = document.getElementById('verifyCode').textContent;
 
   // Store in localStorage for cross-tab communication
-  localStorage.setItem('rbxog_last_verify_code', verifyCode);
+  localStorage.setItem('rbxog_last_verify_code', code);
   localStorage.setItem('rbxog_last_verify_reward', reward);
   localStorage.setItem('rbxog_last_verify_time', Date.now().toString());
+  localStorage.setItem('rbxog_last_verify_offer', '0');
 
   // Navigate to main app
   window.location.href = MAIN_APP_URL;
 }
 
 // ==================== TIMER ====================
-let timeLeft = 600; // 10 minutes
+let timeLeft = 600;
 function updateTimer() {
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
@@ -463,17 +471,6 @@ style.textContent = `
   }
 `;
 document.head.appendChild(style);
-
-// ==================== MESSAGE LISTENER (for postMessage) ====================
-window.addEventListener('message', (e) => {
-  if (e.data && e.data.type === 'RBXOG_REQUEST_CODE') {
-    e.source.postMessage({
-      type: 'RBXOG_VERIFY_CODE',
-      code: verifyCode,
-      reward: reward
-    }, '*');
-  }
-});
 </script>
 </body>
 </html>
